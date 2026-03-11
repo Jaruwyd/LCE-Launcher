@@ -17,7 +17,7 @@ LCE Launcher is a custom launcher for Minecraft Legacy Console Edition preservat
 
 ## Downloads
 
-LCE Launcher is distributed as prebuilt releases. Source code is not publicly published.
+Download The Latest Release [Here](https://github.com/Jaruwyd/LCE-Launcher/releases/tag/0.0.1)
 
 ## Configuration
 
