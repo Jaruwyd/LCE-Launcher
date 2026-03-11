@@ -15,40 +15,9 @@ LCE Launcher is a custom launcher for Minecraft Legacy Console Edition preservat
 - Background video and music controls
 - Auto-update support for packaged builds (GitHub Releases)
 
-## Getting Started
+## Downloads
 
-### From Source
-1. Clone or download this repository.
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Run the launcher:
-   ```bash
-   npm start
-   ```
-
-## Building
-
-### Windows (NSIS)
-```bash
-npm run dist:win
-```
-
-### Linux (AppImage)
-```bash
-npm run dist
-```
-
-### Linux (Flatpak)
-```bash
-npm run dist:flatpak
-```
-
-### macOS (DMG)
-```bash
-npm run dist:mac
-```
+LCE Launcher is distributed as prebuilt releases. Source code is not publicly published.
 
 ## Configuration
 
@@ -65,9 +34,9 @@ By default, the launcher fetches releases from `smartcmd/MinecraftConsoles`. You
 - Username (stored locally)
 - Playtime tracking
 
-## Auto-Updates (Packaged Builds)
+## Auto-Updates
 
-Packaged builds can auto-update via GitHub Releases when configured. During launch, the app checks for new releases, downloads updates, and installs automatically.
+Packaged builds can auto-update via GitHub Releases. During launch, the app checks for new releases, downloads updates, and installs automatically.
 
 ## Credits
 
