@@ -2,7 +2,7 @@
 
 LCE Launcher is a custom launcher for Minecraft Legacy Console Edition preservation and community builds. It focuses on fast instance management, clean updates, and a cozy nostalgic UI.
 
-<img width="1277" height="717" alt="LCE Launcher" src="https://github.com/user-attachments/assets/eaa9bae6-3b3b-4e39-a3c1-156e34abf3cc" />
+<img width="1277" height="717" alt="LCE Launcher" src="screenshot.png" />
 
 ## Features
 
