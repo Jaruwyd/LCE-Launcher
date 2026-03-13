@@ -38,6 +38,12 @@ By default, the launcher fetches releases from `smartcmd/MinecraftConsoles`. You
 
 Packaged builds can auto-update via GitHub Releases. During launch, the app checks for new releases, downloads updates, and installs automatically.
 
+## To Do
+- Add Mod Loader
+- Add Friends Tab
+- Add Discord RPC
+
+
 ## Credits
 
 - **Jaruwyd / nt8j** — Launcher Creator  
