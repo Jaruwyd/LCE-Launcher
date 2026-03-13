@@ -43,6 +43,9 @@ Packaged builds can auto-update via GitHub Releases. During launch, the app chec
 - Add Friends Tab
 - Add Discord RPC
 
+## W.I.P
+- Fix Server World's To Actually Save Properly
+
 
 ## Credits
 
