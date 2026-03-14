@@ -42,6 +42,7 @@ Packaged builds can auto-update via GitHub Releases. During launch, the app chec
 - Add Mod Loader
 - Add Friends Tab
 - Add Discord RPC
+- Add LCEMP Support
 
 ## W.I.P
 - Fix Server World's To Actually Save Properly
