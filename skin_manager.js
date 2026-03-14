@@ -1,6 +1,3 @@
-// skin_manager.js
-// Handles skin uploading, conversion, 3D preview, and saving to char.png
-
 let mainMenuScene, mainMenuCamera, mainMenuRenderer, mainMenuPlayerGroup;
 let isMainSkinDragging = false;
 
@@ -9,7 +6,6 @@ let isSkinDragging = false;
 let previousSkinMousePosition = { x: 0, y: 0 };
 let processedSkinDataUrl = null;
 
-// Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
     const skinInput = document.getElementById('skin-input');
     const dropZone = document.getElementById('drop-zone');
@@ -44,7 +40,6 @@ document.addEventListener('DOMContentLoaded', () => {
         saveToLibraryBtn.addEventListener('click', saveSkinToLibrary);
     }
 
-    // Initialize Main Menu Viewer
     initMainMenuSkinViewer();
 });
 
@@ -70,7 +65,6 @@ function initMainMenuSkinViewer() {
     mainMenuPlayerGroup = new THREE.Group();
     mainMenuScene.add(mainMenuPlayerGroup);
 
-    // Interaction for Main Menu Viewer
     let prevX = 0;
     container.addEventListener('mousedown', (e) => {
         isMainSkinDragging = true;
@@ -84,7 +78,6 @@ function initMainMenuSkinViewer() {
         }
     });
 
-    // Auto-rotate slowly
     function animateMain() {
         requestAnimationFrame(animateMain);
         if (!isMainSkinDragging && mainMenuPlayerGroup) mainMenuPlayerGroup.rotation.y += 0.005;
@@ -92,10 +85,8 @@ function initMainMenuSkinViewer() {
     }
     animateMain();
 
-    // Load current skin after short delay to ensure paths are ready
     setTimeout(loadMainMenuSkin, 500);
 
-    // Handle window resize
     window.addEventListener('resize', () => {
         if (mainMenuCamera && mainMenuRenderer && container) {
             mainMenuCamera.aspect = container.offsetWidth / container.offsetHeight;
@@ -107,7 +98,6 @@ function initMainMenuSkinViewer() {
 
 async function loadMainMenuSkin() {
     try {
-        // Ensure install dir is available (currentInstance might not be ready)
         const installDir = await window.getInstallDir();
         if (!installDir) return;
 
@@ -178,29 +168,26 @@ function updateSkinModel(dataUrl, isLegacy, targetGroup) {
             left: [x + 8, y + 4, 4, 12], back: [x + 12, y + 4, 4, 12]
         });
 
-        // Head
+
         const headUvs = { top: [8, 0, 8, 8], bottom: [16, 0, 8, 8], right: [0, 8, 8, 8], left: [16, 8, 8, 8], front: [8, 8, 8, 8], back: [24, 8, 8, 8] };
         const head = createBodyPart(8, 8, 8, texture, headUvs);
         head.position.y = 10;
         targetGroup.add(head);
 
-        // Hat
+   
         const hatUvs = { top: [40, 0, 8, 8], bottom: [48, 0, 8, 8], right: [32, 8, 8, 8], left: [48, 8, 8, 8], front: [40, 8, 8, 8], back: [56, 8, 8, 8] };
         const hat = createBodyPart(8, 8, 8, texture, hatUvs, 0.12);
         hat.position.y = 10;
         targetGroup.add(hat);
-
-        // Torso
+   
         const torsoUvs = { top: [20, 16, 8, 4], bottom: [28, 16, 8, 4], right: [16, 20, 4, 12], left: [28, 20, 4, 12], front: [20, 20, 8, 12], back: [32, 20, 8, 12] };
         targetGroup.add(createBodyPart(8, 12, 4, texture, torsoUvs));
 
-        // Jacket (non-legacy only)
         if (!isLegacy) {
             const jacketUvs = { top: [20, 32, 8, 4], bottom: [28, 32, 8, 4], right: [16, 36, 4, 12], left: [28, 36, 4, 12], front: [20, 36, 8, 12], back: [32, 36, 8, 12] };
             targetGroup.add(createBodyPart(8, 12, 4, texture, jacketUvs, 0.05));
         }
 
-        // Limbs
         const limbs = [
             { pos: [-6, 0, 0], uv: limbUv(40, 16), layerUv: limbUv(40, 32) },
             { pos: [6, 0, 0], uv: isLegacy ? limbUv(40, 16) : limbUv(32, 48), layerUv: limbUv(48, 48) },
@@ -226,14 +213,11 @@ async function openSkinManager() {
     modal.style.display = 'flex';
     modal.style.opacity = '1';
 
-    // Clear previous state in modal
     const previewContainer = document.getElementById('preview-container');
     if (previewContainer) previewContainer.classList.remove('hidden'); // Show it by default now
 
-    // Load current skin into preview
     loadCurrentSkinToPreview();
 
-    // Load Skin Library
     loadSkinLibrary();
 }
 
@@ -265,7 +249,6 @@ function closeSkinManager() {
     setTimeout(() => {
         modal.style.display = 'none';
 
-        // Reset state
         const prompt = document.getElementById('upload-prompt');
         if (prompt) prompt.style.display = 'block';
 
@@ -314,7 +297,6 @@ function processSkinImage(img, srcUrl, isInitialLoad = false) {
 
     const isLegacy = img.height === 32;
 
-    // Set canvas dimensions based on skin height
     canvas.height = img.height;
     ctx.clearRect(0, 0, 64, img.height);
     ctx.drawImage(img, 0, 0);
@@ -352,9 +334,7 @@ function updateSidebarHead(srcUrl) {
         ctx.imageSmoothingEnabled = false;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        // Face (8x8 at 8,8)
         ctx.drawImage(img, 8, 8, 8, 8, 0, 0, canvas.width, canvas.height);
-        // Overlay (8x8 at 40,8)
         ctx.drawImage(img, 40, 8, 8, 8, 0, 0, canvas.width, canvas.height);
     };
     img.src = srcUrl;
