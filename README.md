@@ -54,7 +54,8 @@ Packaged builds can auto-update via GitHub Releases. During launch, the app chec
   https://github.com/Jaruwyd
 - **smartcmd** — Legacy (Nightly) Build Version  
   https://github.com/smartcmd/MinecraftConsoles
-
+- **gradenGnostic** - Launcher Inspo
+ 
 ## Help & Links
 
 If you need any help in-game, join the Minecraft Consoles Discord server:  
