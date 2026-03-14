@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LCE Launcher</title>
+    <link rel="icon" type="image/png" href="512x512.png">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+</head>
+
+<body>
+    <div class="launcher-window">
+        <!-- Title Bar -->
+        <div class="title-bar">
+            <div class="flex items-center gap-2"></div>
+            <div class="window-controls">
+                <div class="win-btn" onclick="minimizeWindow()">−</div>
+                <div class="win-btn" id="maximize-btn" onclick="toggleMaximize()">▢</div>
+                <div class="win-btn close" onclick="closeWindow()">×</div>
+            </div>
+        </div>
+
+        <!-- Loader -->
+        <div id="loader">
+            <div class="text-center">
+                <div class="loader-spinner"></div>
+                <div id="loader-text" class="mc-font text-xs tracking-widest text-gray-400">CONNECTING...</div>
+            </div>
+        </div>
+
+        <!-- Offline Indicator -->
+        <div id="offline-indicator"
+            style="display: none; position: fixed; top: 50px; left: 50%; transform: translateX(-50%); background: #c42b1c; color: #fff; padding: 6px 20px; border-radius: 100px; z-index: 1001; font-weight: 800; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;">
+            OFFLINE MODE — UPDATES DISABLED
+        </div>
+
+        <!-- Launching Overlay -->
+        <div id="launch-overlay">
+            <div class="relative mb-10">
+                <div class="absolute inset-0 bg-green-500 blur-3xl opacity-30 animate-pulse"></div>
+                <img src="https://www.minecraft.net/etc.clientlibs/minecraft/clientlibs/main/resources/img/minecraft-creeper-face.png"
+                    width="100" class="relative drop-shadow-2xl" alt="Creeper">
+            </div>
+            <h2 class="text-3xl font-black italic tracking-tight mc-font" style="font-size: 20px;">LOADING...</h2>
+            <div class="progress-bar-container">
+                <div id="progress-fill" class="progress-bar-fill"></div>
+            </div>
+            <p id="progress-text-overlay" class="text-xs font-bold text-gray-500 mt-8 tracking-[0.4em] uppercase">
+                Checking for updates...</p>
+        </div>
+
+        <!-- Content Area -->
+        <div class="main-content">
+            <div class="top-nav-wrapper">
+                <div class="top-nav">
+                    <div class="top-nav-left">
+                        <div class="top-nav-logo">
+                            <img src="512x512.png" alt="Logo">
+                        </div>
+                        <div class="top-nav-title">LCE LAUNCHER</div>
+                    </div>
+                    <div class="top-nav-center">
+                        <div class="top-nav-item active" onclick="showMainView()">PLAY NOW</div>
+                        <div class="top-nav-item" onclick="toggleInstances(true)">INSTALLATIONS</div>
+                        <div class="top-nav-item" onclick="openSkinManager()">SKINS</div>
+                        <div class="top-nav-item" onclick="toggleServers(true)">SERVERS</div>
+                        <div class="top-nav-item" onclick="toggleCreateServer(true)">CREATE SERVER</div>
+                        <div class="top-nav-item" onclick="toggleOptions(true)">SETTINGS</div>
+                        <div class="top-nav-item" onclick="toggleInfo(true)">INFO</div>
+                    </div>
+                    <div class="top-nav-right">
+                        <div class="top-nav-pill" onclick="toggleProfile(true)">
+                            <canvas id="sidebar-head-canvas" width="28" height="28" class="top-nav-avatar"
+                                style="image-rendering: pixelated;"></canvas>
+                            <span class="top-nav-pill-label" id="sidebar-username">Player</span>
+                            <span class="top-nav-pill-dot"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="video-container">
+                <div class="video-overlay"></div>
+
+                <video id="bg-video" class="video-bg" autoplay muted loop playsinline>
+                    <source
+                        src="https://v.redd.it/uysdmqdfn1lg1/HLSPlaylist.m3u8?f=hd%2CsubsAll%2ChlsSpecOrder&v=1&a=1775718677%2CN2ZmODQwY2E2N2E4ZGRkMTVjOTg3Mjk1MThkYTUyMThkYTUyM2E4MWNlMzQ0YzViZjM3ZjJhMDJhNjZiZWEyYzg4YWNlNg%3D%3D"
+                        type="video/mp4">
+                </video>
+
+                <div class="hero-text">
+                    <div class="status-badge" id="splash-text">Relive the nostalgia</div>
+                    <h2 class="text-6xl font-black italic tracking-tighter mb-4 drop-shadow-2xl">LEGACY CONSOLE EDITION
+                    </h2>
+                    <p class="text-gray-200 max-w-lg text-sm leading-relaxed font-medium drop-shadow-lg">Relive the
+                        classic console experience. Craft, build, and play with friends in the ultimate nostalgia-filled
+                        sandbox.</p>
+                </div>
+
+                <!-- Main Menu Skin Preview (Hidden - Logic still runs for sidebar updates) -->
+                <div id="main-skin-viewer" style="display: none;">
+                </div>
+            </div>
+
+            <div class="news-grid" id="news-grid">
+                <div class="news-card" id="news-card-1">
+                    <div class="news-image" id="news-img-1"
+                        style="background-image: url('https://www.minecraft.net/content/dam/minecraftnet/archive/8b8961fb496d3b38e3943377c335884c-aquaticlegacy_header.jpg');">
+                    </div>
+                    <div class="p-5">
+                        <p class="text-[9px] text-green-400 font-black uppercase mb-2 tracking-widest" id="news-tag-1">
+                            Latest Update</p>
+                        <h3 class="text-sm font-bold leading-snug" id="news-title-1">Fetching latest patch...</h3>
+                    </div>
+                </div>
+                <div class="news-card" id="news-card-2" onclick="toggleServers(true)">
+                    <div class="news-image" id="news-img-2"
+                        style="background-image: url('https://images.pushsquare.com/c786720f6446d/large.jpg');">
+                    </div>
+                    <div class="p-5">
+                        <p class="text-[9px] text-blue-400 font-black uppercase mb-2 tracking-widest" id="news-tag-2">
+                            Multiplayer</p>
+                        <h3 class="text-sm font-bold leading-snug" id="news-title-2">Connect to Custom Servers</h3>
+                    </div>
+                </div>
+                <div class="news-card" id="news-card-3">
+                    <div class="news-image" id="news-img-3"
+                        style="background-image: url('https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/1b23ce4c-f6c0-473f-b8ed-554c6dc5b2e0/dgqr9e5-efa09da7-25f9-4d12-a8b9-5ec0531f719d.png/v1/fill/w_1192,h_670,q_70,strp/minecraft_wallpaper_remake__sunset_version__by_snootygames_dgqr9e5-pre.jpg?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9NzIwIiwicGF0aCI6Ii9mLzFiMjNjZTRjLWY2YzAtNDczZi1iOGVkLTU1NGM2ZGM1YjJlMC9kZ3FyOWU1LWVmYTA5ZGE3LTI1ZjktNGQxMi1hOGI5LTVlYzA1MzFmNzE5ZC5wbmciLCJ3aWR0aCI6Ijw9MTI4MCJ9XV0sImF1ZCI6WyJ1cm46c2VydmljZTppbWFnZS5vcGVyYXRpb25zIl19.zspSLblEZ9PPIapWH0ZGOELxERw14-363hXo_Am2rUM');">
+                    </div>
+                    <div class="p-5">
+                        <p class="text-[9px] text-yellow-500 font-black uppercase mb-2 tracking-widest" id="news-tag-3">
+                            Patch Note</p>
+                        <h3 class="text-sm font-bold leading-snug" id="news-title-3">Fetching patch details...</h3>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex-1"></div>
+
+            <!-- Control Bar -->
+            <div class="bottom-bar">
+                <div class="flex items-center gap-6">
+                    <!-- Options Shortcut -->
+                    <div class="flex flex-col items-center group cursor-pointer" onclick="toggleOptions(true)">
+                        <div
+                            class="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center text-gray-400 group-hover:bg-white/10 group-hover:text-white transition-all border border-white/5">
+                            <i class="ph-bold ph-faders-horizontal"></i>
+                        </div>
+                    </div>
+
+                    <div class="h-10 w-[1px] bg-gray-800"></div>
+
+                    <!-- Version Selector -->
+                    <div class="flex items-center gap-4 cursor-pointer group relative">
+                        <div class="w-12 h-12 bg-green-500/10 rounded-2xl flex items-center justify-center text-green-500 group-hover:bg-green-500/20 transition-all border border-green-500/10"
+                            id="btn-check-update" onclick="checkForUpdatesManual()">
+                            <i class="ph-fill ph-package"></i>
+                        </div>
+                        <div id="version-select-box" class="nav-item !m-0 !p-0 bg-transparent hover:bg-transparent"
+                            tabindex="0">
+                            <div>
+                                <p class="text-[9px] text-gray-500 font-black uppercase tracking-widest">Instance</p>
+                                <p class="text-sm font-bold group-hover:text-green-400 transition-colors"
+                                    id="current-version-display">Loading...</p>
+                            </div>
+                            <i class="ph-bold ph-caret-up text-gray-700 ml-2"></i>
+                            <select id="version-select" class="hidden-select" onchange="updateSelectedRelease()">
+                                <option>Loading...</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="play-button" id="btn-play-main" onclick="launchGame()">
+                    <span class="mc-font" style="font-size: 18px;">Play</span>
+                </button>
+
+                <div class="flex items-center gap-4">
+                    <div class="text-right">
+                        <p class="text-[9px] text-gray-600 uppercase font-black tracking-widest mb-1">Session</p>
+                        <p class="text-xs font-bold text-gray-300" id="playtime-sidebar">0h 0m today</p>
+                    </div>
+                    <div class="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center text-gray-400 hover:text-white cursor-pointer border border-white/5"
+                        onclick="toggleInfo(true)">
+                        <i class="ph-bold ph-info"></i>
+                    </div>
+                    <div class="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center text-gray-400 hover:text-white cursor-pointer border border-white/5"
+                        onclick="toggleAnnouncements(true)">
+                        <i class="ph-bold ph-bell"></i>
+                    </div>
+                    <div id="music-toggle"
+                        class="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center text-gray-400 hover:text-white cursor-pointer border border-white/5"
+                        onclick="toggleMusic()">
+                        <i class="ph-bold ph-speaker-high" id="music-icon-ph"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals (Simplified Design) -->
+    <!-- Announcements Modal -->
+    <div class="modal-overlay" id="announcements-modal">
+        <div class="modal-box !w-[900px]">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="modal-title !mb-0">ANNOUNCEMENTS</h2>
+                <div class="btn-mc !w-[48px] !h-[48px]" onclick="toggleAnnouncements(false)"><i class="ph ph-x text-xl"></i></div>
+            </div>
+            <div id="announcements-list" class="max-h-[450px] overflow-y-auto bg-black/50 rounded-2xl border border-white/5 p-3">
+                <div class="update-item">Loading updates...</div>
+            </div>
+        </div>
+    </div>
+    <!-- Options Modal -->
+    <div class="modal-overlay" id="options-modal">
+        <div class="modal-box">
+            <h2 class="modal-title">SETTINGS</h2>
+
+            <label class="mc-label">Installation Directory</label>
+            <div class="flex gap-2 mb-4">
+                <input type="text" id="install-path-input" class="mc-input !mb-0"
+                    placeholder="Default: Documents/LCEClient">
+                <div class="btn-mc" onclick="browseInstallDir()">...</div>
+            </div>
+            <div class="btn-mc mb-6" onclick="openGameDir()">OPEN FOLDER</div>
+
+            <label class="mc-label">Account & Source</label>
+            <input type="text" id="repo-input" class="mc-input" placeholder="user/repo">
+            <input type="text" id="exec-input" class="mc-input" placeholder="Minecraft.Client.exe">
+
+            <label class="mc-label">Audio</label>
+            <div class="flex items-center gap-4 mb-6">
+                <input type="range" id="volume-slider" min="0" max="1" step="0.05" value="1"
+                    class="flex-1 accent-[#58d63d]">
+            </div>
+
+            <div class="flex gap-4">
+                <div class="btn-mc primary flex-1" onclick="saveOptions()">SAVE</div>
+                <div class="btn-mc flex-1" onclick="toggleOptions(false)">CANCEL</div>
+            </div>
+
+            <div class="mt-8 pt-6 border-t border-white/5 w-full text-center">
+                <p class="text-[10px] text-gray-600 font-black uppercase tracking-[0.2em]">Created by Discord: @nt8j</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Modal -->
+    <div class="modal-overlay" id="profile-modal">
+        <div class="modal-box">
+            <h2 class="modal-title">PLAYER PROFILE</h2>
+            <label class="mc-label">In-Game Username</label>
+            <input type="text" id="username-input" class="mc-input" placeholder="Steve" maxlength="16">
+
+            <div class="bg-black/50 p-6 rounded-2xl border border-white/5 mb-6">
+                <label class="mc-label">Total Playtime</label>
+                <div id="playtime-display" class="text-2xl font-black text-green-500">0h 0m 0s</div>
+            </div>
+
+            <div class="flex gap-4">
+                <div class="btn-mc primary flex-1" onclick="saveProfile()">SAVE</div>
+                <div class="btn-mc flex-1" onclick="toggleProfile(false)">CLOSE</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Info Modal -->
+    <div class="modal-overlay" id="info-modal">
+        <div class="modal-box">
+            <h2 class="modal-title">APP INFO</h2>
+
+            <div class="bg-black/50 p-6 rounded-2xl border border-white/5 mb-6">
+                <p class="text-[10px] text-gray-500 font-black uppercase tracking-widest mb-2">About</p>
+                <p class="text-sm text-gray-200 leading-relaxed">
+                    LCE Launcher is a custom launcher for Legacy Console Edition preservation and community builds.
+                    It focuses on fast instance management, clean updates, and a cozy nostalgic UI.
+                </p>
+            </div>
+
+            <div class="bg-black/40 p-6 rounded-2xl border border-white/5 mb-6">
+                <p class="text-[10px] text-gray-500 font-black uppercase tracking-widest mb-3">Version</p>
+                <div class="flex items-center justify-between text-sm">
+                    <span class="text-gray-300 font-semibold">Launcher Version</span>
+                    <span class="text-gray-400" id="info-version">Loading...</span>
+                </div>
+            </div>
+
+            <div class="bg-black/40 p-6 rounded-2xl border border-white/5 mb-6">
+                <p class="text-[10px] text-gray-500 font-black uppercase tracking-widest mb-3">Credits</p>
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-gray-300 font-semibold">Jaruwyd / nt8j</span>
+                        <a class="text-gray-400 hover:text-white" href="https://github.com/Jaruwyd" target="_blank"
+                            rel="noreferrer">Launcher Creator</a>
+                    </div>
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-gray-300 font-semibold">smartcmd</span>
+                        <a class="text-gray-400 hover:text-white" href="https://github.com/smartcmd/MinecraftConsoles"
+                            target="_blank" rel="noreferrer">Legacy (Nightly) Build Version</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-black/40 p-6 rounded-2xl border border-white/5 mb-6">
+                <p class="text-[10px] text-gray-500 font-black uppercase tracking-widest mb-3">Help & Links</p>
+                <p class="text-sm text-gray-200 leading-relaxed mb-3">
+                    If you need any help in-game, join the Minecraft Consoles Discord server.
+                </p>
+                <a class="text-sm text-green-400 font-bold hover:text-green-300"
+                    href="https://discord.gg/minecraftconsoles" target="_blank" rel="noreferrer">
+                    discord.gg/minecraftconsoles
+                </a>
+            </div>
+
+            <div class="flex gap-4">
+                <div class="btn-mc primary flex-1" onclick="toggleInfo(false)">CLOSE</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Instances Modal -->
+    <div class="modal-overlay" id="instances-modal">
+        <div class="modal-box !w-[800px]">
+            <h2 class="modal-title">GAME INSTANCES</h2>
+            <div id="instances-list-container"
+                class="max-h-[400px] overflow-y-auto mb-6 bg-black/50 rounded-2xl border border-white/5 p-2">
+                <!-- Instances -->
+            </div>
+            <div class="flex gap-4">
+                <div class="btn-mc primary flex-1" onclick="createNewInstance()">ADD INSTANCE</div>
+                <div class="btn-mc flex-1" onclick="toggleInstances(false)">DONE</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Instance Modal -->
+    <div class="modal-overlay" id="add-instance-modal">
+        <div class="modal-box">
+            <h2 class="modal-title">ADD INSTANCE</h2>
+            <label class="mc-label">Instance Name</label>
+            <input type="text" id="new-instance-name" class="mc-input" placeholder="My Instance">
+            <label class="mc-label">Repository</label>
+            <input type="text" id="new-instance-repo" class="mc-input" placeholder="user/repo">
+            <div class="flex gap-4">
+                <div class="btn-mc primary flex-1" onclick="saveNewInstance()">CREATE</div>
+                <div class="btn-mc flex-1" onclick="toggleAddInstance(false)">CANCEL</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Servers Modal -->
+    <div class="modal-overlay" id="servers-modal">
+        <div class="modal-box">
+            <h2 class="modal-title">CUSTOM SERVERS</h2>
+            <div id="servers-list-container"
+                class="max-h-[300px] overflow-y-auto mb-6 bg-black/50 rounded-2xl border border-white/5 p-2">
+                <!-- Servers -->
+            </div>
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <input type="text" id="server-name-input" class="mc-input !mb-0" placeholder="Server Name">
+                <input type="text" id="server-ip-input" class="mc-input !mb-0" placeholder="IP:Port">
+            </div>
+            <div class="btn-mc primary w-full mb-6" onclick="addServer()">ADD SERVER</div>
+            <div class="btn-mc w-full" onclick="toggleServers(false)">DONE</div>
+        </div>
+    </div>
+
+    <!-- Create Server Modal -->
+    <div class="modal-overlay" id="create-server-modal">
+        <div class="modal-box">
+            <h2 class="modal-title">CREATE A SERVER</h2>
+
+            <div class="bg-black/50 p-6 rounded-2xl border border-white/5 mb-6">
+                <p class="text-[10px] text-gray-500 font-black uppercase tracking-widest mb-2">Overview</p>
+                <p class="text-sm text-gray-200 leading-relaxed">
+                    Creating a server requires running the client in server mode from the Command Prompt.
+                    Follow the steps below to start a dedicated server instance.
+                </p>
+            </div>
+
+            <div class="bg-black/40 p-6 rounded-2xl border border-white/5 mb-6">
+                <p class="text-[10px] text-gray-500 font-black uppercase tracking-widest mb-3">Disclaimer</p>
+                <p class="text-sm text-gray-200 leading-relaxed">
+                    <span class="font-semibold text-white">DISCLAIMER!</span> In order for your friends to join, you will have to Port Forward.
+                    I'm not here to explain how to do that, just to make you aware how to set up a server.
+                    You can also use a P2P client like Radmin VPN or Hamachi VPN, or tools like Ngrok.
+                </p>
+            </div>
+
+            <div class="bg-black/40 p-6 rounded-2xl border border-white/5 mb-6">
+                <p class="text-[10px] text-gray-500 font-black uppercase tracking-widest mb-3">Server Settings</p>
+                <div class="flex items-center justify-between mb-4 gap-4">
+                    <div class="min-w-[200px]">
+                        <p class="text-sm font-semibold text-gray-200">Server Folder</p>
+                        <p class="text-[11px] text-gray-500">Where the dedicated server is installed.</p>
+                    </div>
+                    <input type="text" id="server-path-input" class="mc-input !mb-0 flex-1" placeholder="Select a folder..." onchange="setServerDir(this.value)">
+                    <div class="btn-mc !mb-0 !py-3 !px-4" onclick="browseServerDir()">BROWSE</div>
+                </div>
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <p class="text-sm font-semibold text-gray-200">Gamertags</p>
+                        <p class="text-[11px] text-gray-500">Show player name tags.</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="server-gamertags-toggle" onchange="saveServerSetting('gamertags', this.checked)">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <p class="text-sm font-semibold text-gray-200">PvP</p>
+                        <p class="text-[11px] text-gray-500">Allow player vs player combat.</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="server-pvp-toggle" onchange="saveServerSetting('pvp', this.checked)">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <p class="text-sm font-semibold text-gray-200">Fire Spread</p>
+                        <p class="text-[11px] text-gray-500">Allow fire to spread.</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="server-fire-spread-toggle" onchange="saveServerSetting('fire-spreads', this.checked)">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <p class="text-sm font-semibold text-gray-200">TNT Explodes</p>
+                        <p class="text-[11px] text-gray-500">Allow TNT to explode.</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="server-tnt-toggle" onchange="saveServerSetting('tnt', this.checked)">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <p class="text-sm font-semibold text-gray-200">Trust Players</p>
+                        <p class="text-[11px] text-gray-500">Enable trusted player permissions.</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="server-trust-players-toggle" onchange="saveServerSetting('trust-players', this.checked)">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <p class="text-sm font-semibold text-gray-200">Structures</p>
+                        <p class="text-[11px] text-gray-500">Generate structures.</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="server-structures-toggle" onchange="saveServerSetting('generate-structures', this.checked)">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <p class="text-sm font-semibold text-gray-200">Max Amount Of Players</p>
+                        <p class="text-[11px] text-gray-500">Set the max player limit.</p>
+                    </div>
+                    <input type="number" min="1" max="99" id="server-max-players-input"
+                        class="mc-input !w-[140px] !mb-0 text-center"
+                        onchange="saveServerNumberSetting('max-players', this.value)">
+                </div>
+                <div class="text-[11px] text-gray-500">
+                    Settings are saved to <span class="text-gray-300">server.properties</span>.
+                </div>
+            </div>
+
+            <div class="flex gap-4">
+                <div class="btn-mc primary flex-1" id="server-action-btn" onclick="serverAction()">START SERVER</div>
+                <div class="btn-mc flex-1" onclick="stopServer()">STOP SERVER</div>
+                <div class="btn-mc flex-1" onclick="openServerDir()">OPEN SERVER FOLDER</div>
+                <div class="btn-mc flex-1" onclick="toggleCreateServer(false)">CLOSE</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Skin Manager Modal (Hidden by default, used by skin_manager.js) -->
+    <div class="modal-overlay" id="skin-modal">
+        <div class="modal-box !w-[900px]">
+            <h2 class="modal-title">SKIN UPLOADER</h2>
+            <div id="drop-zone"
+                class="w-full h-32 bg-black/50 border-2 border-dashed border-white/10 rounded-2xl flex flex-col items-center justify-center cursor-pointer mb-6 hover:border-green-500/50 transition-all">
+                <input type="file" id="skin-input" accept=".png" class="hidden">
+                <p class="font-bold text-gray-400">CLICK OR DRAG SKIN HERE</p>
+                <p class="text-[10px] text-gray-600 uppercase font-black tracking-widest mt-2">64x32 or 64x64 PNG</p>
+            </div>
+            <div id="preview-container" class="flex gap-8 h-[400px] mb-6">
+                <div id="skin-viewer-container"
+                    class="flex-1 bg-black/40 rounded-3xl border border-white/5 relative overflow-hidden backdrop-filter blur-sm">
+                    <!-- 3D Viewer will be injected here -->
+                </div>
+                <div class="w-1/3 flex flex-col gap-4">
+                    <div class="bg-black/40 rounded-3xl border border-white/5 p-4 flex items-center justify-center">
+                        <canvas id="skin-canvas" width="64" height="64"
+                            style="width: 100%; image-rendering: pixelated;"></canvas>
+                    </div>
+                    <div class="space-y-3">
+                        <div class="bg-black/30 p-3 rounded-2xl border border-white/5">
+                            <p class="text-[9px] text-gray-500 uppercase font-black tracking-widest mb-1">Status</p>
+                            <p id="status-message" class="font-bold text-[10px] uppercase">--</p>
+                        </div>
+                        <div class="bg-black/30 p-3 rounded-2xl border border-white/5">
+                            <p class="text-[9px] text-gray-500 uppercase font-black tracking-widest mb-1">Format</p>
+                            <p id="format-label" class="font-bold text-[10px] uppercase">--</p>
+                        </div>
+                    </div>
+                    <div class="btn-mc primary w-full py-3 text-xs" id="save-skin-btn">UPDATE SKIN</div>
+                    <div class="btn-mc w-full py-3 text-xs" id="save-to-library-btn">SAVE TO LIBRARY</div>
+                </div>
+            </div>
+
+            <!-- Saved Skins Library -->
+            <div class="mb-6">
+                <p class="text-[10px] text-gray-500 font-black uppercase tracking-widest mb-3">Saved Skins Gallery</p>
+                <div id="skin-library-list" class="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+                    <!-- Saved skin heads will appear here -->
+                    <div class="text-[10px] text-gray-700 font-bold uppercase py-4 italic">No skins saved yet.</div>
+                </div>
+            </div>
+            <div class="btn-mc w-full" onclick="closeSkinManager()">DONE</div>
+        </div>
+    </div>
+
+    <!-- Update Modal -->
+    <div class="modal-overlay" id="update-modal">
+        <div class="modal-box">
+            <h2 class="modal-title">UPDATE AVAILABLE</h2>
+            <div id="update-modal-text" class="text-gray-400 text-sm mb-8 text-center leading-relaxed">A new version of
+                the launcher is available. Would you like to update now?</div>
+            <div class="flex gap-4">
+                <div class="btn-mc primary flex-1" id="btn-confirm-update">UPDATE NOW</div>
+                <div class="btn-mc flex-1" id="btn-skip-update">LATER</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast">NOTIFICATION</div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="skin_manager.js"></script>
+    <script src="renderer.js"></script>
+</body>
+
+</html>

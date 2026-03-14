@@ -1,0 +1,71 @@
+{
+  "name": "lce-launcher",
+  "version": "0.0.1",
+  "description": "",
+  "main": "main.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Jaruwyd/LCE-Launcher"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "electron .",
+    "dist": "electron-builder --linux AppImage",
+    "dist:flatpak": "electron-builder --linux flatpak",
+    "dist:win": "electron-builder --win nsis",
+    "dist:mac": "electron-builder --mac dmg"
+  },
+  "build": {
+    "appId": "com.lce.launcher",
+    "productName": "LCE Launcher",
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "Jaruwyd",
+        "repo": "LCE-Launcher"
+      }
+    ],
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "icon": "512x512.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "flatpak"
+      ],
+      "category": "Game",
+      "icon": "512x512.png"
+    },
+    "mac": {
+      "target": [
+        "dmg"
+      ],
+      "icon": "512x512.png",
+      "category": "public.app-category.games"
+    },
+    "files": [
+      "**/*",
+      "!dist/*"
+    ]
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "discord-rpc": "^4.0.1",
+    "electron-updater": "^6.6.2",
+    "electron-store": "^6.0.1",
+    "extract-zip": "^2.0.1"
+  },
+  "devDependencies": {
+    "electron": "^40.7.0",
+    "electron-builder": "^26.8.1"
+  }
+}
