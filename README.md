@@ -55,7 +55,7 @@ Packaged builds can auto-update via GitHub Releases. During launch, the app chec
 - **smartcmd** — Legacy (Nightly) Build Version  
   https://github.com/smartcmd/MinecraftConsoles
 - **gradenGnostic** - Launcher Inspo
-  https://github.com/gradenGnostic/LegacyLauncher
+https://github.com/gradenGnostic/LegacyLauncher
  
 ## Help & Links
 
